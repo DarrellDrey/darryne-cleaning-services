@@ -1,0 +1,28 @@
+# Dependencies and generated build output
+node_modules/
+dist/
+
+# Local scratch files and package caches
+work/
+outputs/*
+
+# Local environment variables and credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+*.cer
+secrets.*
+credentials.*
+
+# Logs and local tooling state
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+.DS_Store
+.vite/
+*.tsbuildinfo
