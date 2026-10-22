@@ -1,5 +1,22 @@
 import { useState, type FormEvent } from 'react'
-import { ArrowDown, ArrowRight, Check, CheckCircle2, ChevronDown, Clock3, Droplets, Home, Mail, MapPin, Menu, Phone, Sparkles, SprayCan, Wind, X } from 'lucide-react'
+// Import the individual icon modules so Vite doesn't have to transform the
+// entire Lucide icon barrel during production builds.
+import ArrowDown from 'lucide-react/dist/esm/icons/arrow-down.js'
+import ArrowRight from 'lucide-react/dist/esm/icons/arrow-right.js'
+import Check from 'lucide-react/dist/esm/icons/check.js'
+import CheckCircle2 from 'lucide-react/dist/esm/icons/circle-check-big.js'
+import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down.js'
+import Clock3 from 'lucide-react/dist/esm/icons/clock-3.js'
+import Droplets from 'lucide-react/dist/esm/icons/droplets.js'
+import Home from 'lucide-react/dist/esm/icons/home.js'
+import Mail from 'lucide-react/dist/esm/icons/mail.js'
+import MapPin from 'lucide-react/dist/esm/icons/map-pin.js'
+import Menu from 'lucide-react/dist/esm/icons/menu.js'
+import Phone from 'lucide-react/dist/esm/icons/phone.js'
+import Sparkles from 'lucide-react/dist/esm/icons/sparkles.js'
+import SprayCan from 'lucide-react/dist/esm/icons/spray-can.js'
+import Wind from 'lucide-react/dist/esm/icons/wind.js'
+import X from 'lucide-react/dist/esm/icons/x.js'
 
 const services = [
   { number: '01', title: 'Huishoudelijke schoonmaak', text: 'Een fris en verzorgd thuis, met aandacht voor de ruimtes die voor u belangrijk zijn.', icon: Home },
@@ -17,13 +34,25 @@ const steps = [
 
 function App() {
   const [menuOpen, setMenuOpen] = useState(false)
-  const [submitted, setSubmitted] = useState(false)
+  const [formStatus, setFormStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle')
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     if (!event.currentTarget.reportValidity()) return
-    setSubmitted(true)
-    event.currentTarget.reset()
+    const form = event.currentTarget
+    setFormStatus('sending')
+    try {
+      const response = await fetch('https://formspree.io/f/xpppaelr', {
+        method: 'POST',
+        body: new FormData(form),
+        headers: { Accept: 'application/json' },
+      })
+      if (!response.ok) throw new Error('Form submission failed')
+      form.reset()
+      setFormStatus('success')
+    } catch {
+      setFormStatus('error')
+    }
   }
 
   const closeMenu = () => setMenuOpen(false)
@@ -83,15 +112,15 @@ function App() {
         <div className="area-copy"><div className="eyebrow"><span className="eyebrow-line" /> Dichtbij en vertrouwd</div><h2>Uw buurt,<br /><em>onze basis.</em></h2><p>Vanuit Leiderdorp verzorgen we schoonmaak in de omgeving. Woont of werkt u in de buurt? Neem contact op om de mogelijkheden te bespreken.</p><div className="town-list"><span><MapPin size={15} /> Leiderdorp</span><span><MapPin size={15} /> Leiden</span><span><MapPin size={15} /> Oegstgeest</span><span><MapPin size={15} /> Zoeterwoude</span><span><MapPin size={15} /> Voorschoten</span><span><MapPin size={15} /> Omgeving</span></div><a href="#offerte" className="area-link">Vraag naar uw locatie <ArrowRight size={15} /></a></div>
       </section>
 
-      <section className="contact section-pad" id="contact"><div className="contact-intro"><div className="eyebrow eyebrow-light"><span className="eyebrow-line" /> Neem contact op</div><h2>Een frisse start<br /><em>begint hier.</em></h2><p>Vertel ons waar u naar op zoek bent. We nemen contact met u op om uw wensen te bespreken.</p><div className="contact-details"><a href="mailto:[e-mailadres invullen]"><span><Mail size={18} /></span><div><small>E-mail</small><b>[e-mailadres invullen]</b></div></a><a href="tel:[telefoonnummer invullen]"><span><Phone size={18} /></span><div><small>Telefoon</small><b>[telefoonnummer invullen]</b></div></a><div><span><MapPin size={18} /></span><div><small>Gevestigd in</small><b>Leiderdorp, Nederland</b></div></div></div><div className="contact-hours"><Clock3 size={15} /> Reactietijd en openingstijden op aanvraag</div></div>
+      <section className="contact section-pad" id="contact"><div className="contact-intro"><div className="eyebrow eyebrow-light"><span className="eyebrow-line" /> Neem contact op</div><h2>Een frisse start<br /><em>begint hier.</em></h2><p>Vertel ons waar u naar op zoek bent. We nemen contact met u op om uw wensen te bespreken.</p><div className="contact-details"><a href="mailto:darrynecleaning@gmail.com"><span><Mail size={18} /></span><div><small>E-mail</small><b>darrynecleaning@gmail.com</b></div></a><a href="tel:[telefoonnummer invullen]"><span><Phone size={18} /></span><div><small>Telefoon</small><b>[telefoonnummer invullen]</b></div></a><div><span><MapPin size={18} /></span><div><small>Gevestigd in</small><b>Leiderdorp, Nederland</b></div></div></div><div className="contact-hours"><Clock3 size={15} /> Reactietijd en openingstijden op aanvraag</div></div>
         <div className="form-panel" id="offerte"><div className="form-heading"><span>Vrijblijvende offerte</span><span className="form-step">01 <i /> 01</span></div><h3>Waarmee kunnen we u helpen?</h3><p>Vul uw gegevens in. We bespreken uw aanvraag persoonlijk.</p>
-          {submitted && <div className="form-feedback" role="status"><CheckCircle2 size={19} /><span><b>Bedankt voor uw aanvraag.</b><br />Uw gegevens zijn gecontroleerd en dit formulier is klaar voor verzending. Er is nog geen bericht naar Darryne Cleaning Services verstuurd; de verzendservice is nog niet aangesloten.</span></div>}
+          {formStatus !== 'idle' && <div className={`form-feedback ${formStatus === 'error' ? 'form-feedback-error' : ''}`} role="status" aria-live="polite">{formStatus === 'success' ? <><CheckCircle2 size={19} /><span><b>Bedankt voor uw aanvraag.</b><br />Uw aanvraag is via het formulier verzonden naar Darryne Cleaning Services.</span></> : formStatus === 'sending' ? <><span aria-hidden="true">…</span><span>Uw aanvraag wordt verzonden…</span></> : <><Mail size={19} /><span><b>Verzenden is niet gelukt.</b><br />Probeer het opnieuw of stuur uw aanvraag naar <a href="mailto:darrynecleaning@gmail.com">darrynecleaning@gmail.com</a>.</span></>}</div>}
           <form onSubmit={handleSubmit} noValidate>
             <div className="form-row"><label>Uw naam<input name="name" autoComplete="name" required placeholder="Voor- en achternaam" /></label><label>E-mailadres<input name="email" type="email" autoComplete="email" required placeholder="naam@voorbeeld.nl" /></label></div>
             <div className="form-row"><label>Telefoonnummer <span className="optional">optioneel</span><input name="phone" type="tel" autoComplete="tel" placeholder="06 12345678" /></label><label>Type schoonmaak<span className="select-wrap"><select name="service" required defaultValue=""><option value="" disabled>Kies een dienst</option>{services.map((s) => <option key={s.number}>{s.title}</option>)}</select><ChevronDown size={15} /></span></label></div>
             <label>Bericht<textarea name="message" required rows={4} placeholder="Vertel ons iets over de ruimte, locatie en uw wensen..." /></label>
             <label className="consent"><input type="checkbox" required /><span>Ik geef toestemming om contact met mij op te nemen over deze aanvraag.</span></label>
-            <button className="button button-dark submit-button" type="submit">Controleer en verstuur aanvraag <ArrowRight size={17} /></button>
+            <button className="button button-dark submit-button" type="submit" disabled={formStatus === 'sending'}>{formStatus === 'sending' ? 'Bezig met verzenden…' : 'Verstuur aanvraag'} <ArrowRight size={17} /></button>
             <p className="privacy-note">Uw gegevens worden alleen gebruikt om op uw aanvraag te reageren.</p>
           </form>
         </div>
